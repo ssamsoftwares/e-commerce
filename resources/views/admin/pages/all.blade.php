@@ -17,24 +17,25 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="float-right">
+                {{-- <div class="float-right">
                     <x-search.table-search action="{{ route('pages') }}" method="get" name="search"
                         value="{{ isset($_REQUEST['search']) ? $_REQUEST['search'] : '' }}" btnClass="search_btn"/>
-                </div>
+                </div> --}}
                 <div class="card-body">
                     <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap"
                         style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-                        <thead>
+                        <thead class="text-center">
                             <tr>
                                 <th>{{ 'Image' }}</th>
                                 <th>{{ 'Title' }}</th>
                                 <th>{{ 'Slug' }}</th>
                                 <th>{{ 'Status' }}</th>
+                                {{-- <th>{{ 'Page' }}</th> --}}
                                 <th>{{ 'Action' }}</th>
                             </tr>
                         </thead>
 
-                        <tbody id="CategoryData">
+                        <tbody id="CategoryData" class="text-center">
                             @foreach ($pages as $page)
                             <tr>
                                 <td>
@@ -44,17 +45,26 @@
                                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ799fyQRixe5xOmxYZc3kAy6wgXGO-GHpHSA&usqp=CAU" alt="Post" width="85">
                                     @endif
                                 </td>
-        
+
                                 <td>{{$page->title}}</td>
                                 <td>{{$page->slug}}</td>
                                 <td>
                                     @if ($page->status == "active")
-                                    <span class="badge badge-info text-info">Active</span>  
+                                    <span class="badge badge-info text-info">Active</span>
                                     @else
                                     <span class="badge badge-dark text-dark">Inactive</span>
                                     @endif
                                     </td>
+
+                                    {{-- <td class="text-center">
+                                        <a href="{{ route('pages.dynamicPage', ['slug'=>$page->slug]) }}"
+                                            class="btn btn-primary waves-effect waves-light view">
+                                            View page
+                                        </a>
+                                    </td> --}}
+
                                 <td>
+
                                     <div class="action-btns text-center" role="group">
 
                                         <a href="{{ route('page.view', ['page'=>$page->id]) }}"

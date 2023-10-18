@@ -23,27 +23,15 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="mb-3">
-                                    <label for="">Category</label>
-                                    <select name="category_id" id="category_id" class="form-control">
-                                        @foreach ($categories as $cat)
-                                            <option value="{{ $cat->id }}">{{ $cat->category }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('category_id')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                                    <x-form.select label="Category" chooseFileComment="--Select Category--"
+                                    name="category_id" id="category_id" :options="$categories" />
                                 </div>
                             </div>
 
                             <div class="col-lg-6">
                                 <div class="mb-3">
-                                    <label for="">Sub Category</label>
-                                    <select name="subcategory_id" id="subcategory_id" class="form-control">
-                                        <option value="">Select Subcategory</option>
-                                    </select>
-                                    @error('subcategory_id')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                                    <x-form.select label="Sub Category" chooseFileComment="--Select Sub Category--"
+                                    name="subcategory_id" id="subcategory_id" :options="$categories" />
                                 </div>
                             </div>
                         </div>
@@ -51,15 +39,8 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="mb-3">
-                                    <label for="">Brand</label>
-                                    <select name="brand_id" id="brand_id" class="form-control">
-                                        @foreach ($brands as $brand)
-                                            <option value="{{ $brand->id }}">{{ $brand->brand }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('brand_id')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                                    <x-form.select label="Brand" chooseFileComment="--Select Brand--"
+                                    name="brand_id" id="brand_id" :options="$brands" />
                                 </div>
                             </div>
 
@@ -123,37 +104,47 @@
 @endsection
 
 @push('script')
+
     <script>
         $(document).ready(function() {
-            $('#category_id').on('change', function() {
+            var $categorySelect = $('#category_id');
+            var $subcategorySelect = $('#subcategory_id');
+
+            function subcategories(categoryId) {
+                $.ajax({
+                    type: "post",
+                    url: '{{ route('product.getSubcategories') }}',
+                    data: {
+                        category_id: categoryId,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(data) {
+                        $subcategorySelect.empty();
+                        $.each(data, function(id, subcategory) {
+                            $subcategorySelect.append(new Option(subcategory, id));
+                        });
+                    },
+                    error: function() {
+                        alert('Error fetching subcategories.');
+                    }
+                });
+            }
+
+            var initialCategoryId = $categorySelect.val();
+            if (initialCategoryId) {
+                subcategories(initialCategoryId);
+            }
+
+            // Handle category change event
+            $categorySelect.on('change', function() {
                 var categoryId = $(this).val();
-
-                if (category_id) {
-                    $.ajax({
-                        type: "post",
-                        url: '{{ route('product.getSubcategories') }}',
-                        data: {
-                            category_id: categoryId,
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function(data) {
-                            console.log(data);
-                            $('#subcategory_id').empty();
-                            $.each(data, function(id, subcategory) {
-                                $('#subcategory_id').append(new Option(subcategory,
-                                id));
-                            });
-                        },
-                        error: function() {
-                            alert('Error fetching subcategories.');
-                        }
-                    });
-
+                if (categoryId) {
+                    subcategories(categoryId);
                 } else {
-                    $('#subcategory_id').empty();
+                    $subcategorySelect.empty();
                 }
             });
-
         });
     </script>
+
 @endpush

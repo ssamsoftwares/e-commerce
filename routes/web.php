@@ -107,7 +107,7 @@ Route::post('add-product', [ProductController::class, 'store'])->name('product.s
 Route::get('edit-product/{product}',[ProductController::class, 'edit'])->name('product.edit');
 Route::post('edit-product/{product?}',[ProductController::class, 'update'])->name('product.update');
 
-Route::post('detete-product-img',[ProductController::class, 'updateTimeDeleteImg'])->name('product.updateTimeDeleteImg');
+Route::post('detete-product-img/{product?}',[ProductController::class, 'updateTimeDeleteImg'])->name('product.updateTimeDeleteImg');
 
 
 Route::get('/delete-product/{product?}',[ProductController::class, 'destroy'])->name('product.destroy');

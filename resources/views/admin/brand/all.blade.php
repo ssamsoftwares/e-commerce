@@ -44,19 +44,31 @@
                                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ799fyQRixe5xOmxYZc3kAy6wgXGO-GHpHSA&usqp=CAU" alt="Post" width="85">
                                     @endif
                                 </td>
-        
+
                                 <td>{{$b->brand}}</td>
                                 <td>{{$b->slug}}</td>
                                 <td>
                                     @if ($b->status == 'active')
-                                    <span class="badge badge-info text-info">Active</span>  
+                                    <span class="badge badge-info text-info">Active</span>
                                     @else
                                     <span class="badge badge-dark text-dark">Inactive</span>
                                     @endif
                                     </td>
                                 <td>
-                                    <a href="{{ route('brand.edit',['brand'=> $b->id ]) }}" class="btn btn-primary btn-sm">Edit</a>
-                                    <a href="{{ route('brand.destroy',['brand'=> $b->id ]) }}" onclick="return confirm('Are you sure delete this brand')" class="btn btn-danger btn-sm">Delete</a>
+                                    {{-- <a href="{{ route('brand.edit',['brand'=> $b->id ]) }}" class="btn btn-primary btn-sm">Edit</a>
+                                    <a href="{{ route('brand.destroy',['brand'=> $b->id ]) }}" onclick="return confirm('Are you sure delete this brand')" class="btn btn-danger btn-sm">Delete</a> --}}
+                                    <div class="action-btns text-center" role="group">
+                                        <a href="{{ route('brand.edit',['brand'=> $b->id ]) }}"
+                                            class="btn btn-info waves-effect waves-light edit">
+                                            <i class="ri-pencil-line"></i>
+                                        </a>
+                                        <a href="{{ route('brand.destroy',['brand'=> $b->id ]) }}"
+                                            class="btn btn-danger waves-effect waves-light del"
+                                            onclick="return confirm('Are you sure delete this brand!')">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </a>
+                                    </div>
+
                                 </td>
                             </tr>
                             @endforeach

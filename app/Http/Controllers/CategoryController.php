@@ -26,23 +26,23 @@ class CategoryController extends Controller
              });
          }
          $category = $query->paginate(10);
-     
+
          return view('admin.category.all', compact('category'));
      }
     /**
      * Show the form for creating a new resource.
      */
- 
+
     public function create()
     {
        return view('admin.category.add');
     }
- 
+
     /**
      * Store a newly created resource in storage.
      */
- 
- 
+
+
     public function store(Request $request, Category $category)
     {
        $request->validate([
@@ -52,7 +52,7 @@ class CategoryController extends Controller
        ]);
        DB::beginTransaction();
        try {
- 
+
           if ($request->hasFile('image')) {
              $imageName = time() . rand(0000, 9999) . '.' . $request->image->extension();
              $request->image->move(public_path('category_images'), $imageName);
@@ -69,7 +69,7 @@ class CategoryController extends Controller
        DB::commit();
        return redirect()->back()->with('status', 'Category Create successfully Done!');
     }
- 
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -77,7 +77,7 @@ class CategoryController extends Controller
     {
        return view('admin.category.edit')->with(compact('category'));
     }
- 
+
     /**
      * Update the specified resource in storage.
      */
@@ -89,21 +89,20 @@ class CategoryController extends Controller
           'slug' => ['required','max:255',Rule::unique('categories','slug')->ignore($request->id)],
           'image' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
           ]);
- 
+
        DB::beginTransaction();
        try {
           if ($request->hasFile('image')) {
              $imageName = time() . rand(0000, 9999) . '.' . $request->image->getClientOriginalExtension();
              $request->image->move(public_path('category_images'), $imageName);
- 
              // Delete old image if  exists.
              if (!empty($category->image)) {
                 unlink(public_path() . '/' . $category->image);
              }
- 
+
              // Update the new Category.
              $category->update([
-                'category' => $request->category,
+                'category' => ucfirst($request->category),
                 'slug' => Str::slug($request->slug),
                 'image' => 'category_images/' . $imageName,
                 'status' => $request->status,
@@ -123,17 +122,17 @@ class CategoryController extends Controller
        DB::commit();
        return redirect()->back()->with('status', "Category Update succefully done!");
     }
- 
+
     /**
      * Show the form for View the specified resource.
      */
- 
+
     public function view(Category $category)
     {
        return view('admin.category.view')->with(compact('category'));
     }
- 
- 
+
+
     /**
      * Remove the specified resource from storage.
      */
@@ -150,4 +149,3 @@ class CategoryController extends Controller
        return redirect()->back()->with('status', "Category Deleted Successfully Done!");
     }
  }
- 

@@ -24,33 +24,15 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="mb-3">
-                                    <label for="">Category</label>
-                                    <select name="category_id" id="category_id" class="form-control">
-                                        @foreach ($categories as $cat)
-                                            <option value="{{ $cat->id }}"
-                                                {{ $cat->id == $product->category_id ? 'selected' : '' }}>
-                                                {{ $cat->category }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('category_id')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                                    <x-form.select label="Category" name="category_id" id="category_id" chooseFileComment="--Select Category--" :options="$categories" :selected="$product->category_id" />
                                 </div>
                             </div>
 
                             <div class="col-lg-6">
                                 <div class="mb-3">
-                                    <label for="">Sub Category</label>
-                                    <select name="subcategory_id" id="subcategory_id" class="form-control">
-                                        @foreach ($subcategories as $subcat)
-                                            <option value="{{ $subcat->id }}"
-                                                {{ $subcat->id == $product->subcategory_id ? 'selected' : '' }}>
-                                                {{ $subcat->sub_category }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('subcategory_id')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                                    <x-form.select label="Sub Category" chooseFileComment="--Select Sub Category--"
+                                    name="subcategory_id" id="subcategory_id" :options="$subcategories" :selected="$product->subcategory_id"  />
+
                                 </div>
                             </div>
                         </div>
@@ -59,17 +41,9 @@
 
                             <div class="col-lg-6">
                                 <div class="mb-3">
-                                    <label for="">Brand</label>
-                                    <select name="brand_id" id="brand_id" class="form-control">
-                                        @foreach ($brands as $brand)
-                                            <option value="{{ $brand->id }}"
-                                                {{ $brand->id == $product->brand_id ? 'selected' : '' }}>
-                                                {{ $brand->brand }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('brand_id')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
+                                    <x-form.select label="Brand" chooseFileComment="--Select Brand--"
+                                    name="brand_id" id="brand_id" :options="$brands" :selected="$product->brand_id" />
+
                                 </div>
                             </div>
 
@@ -104,10 +78,7 @@
                             </div>
 
                             <div class="col-lg-6">
-                                <x-form.select name="product_status" label="Status" :options="[
-                                    'active' => 'Active',
-                                    'inactive' => 'Inactive',
-                                ]" :selected="$product->status" />
+                                <x-form.radio label="Status" name="status" id="" :value="$product->status" />
                             </div>
                         </div>
 
@@ -185,4 +156,48 @@
             })
         });
     </script>
+
+
+{{-- Select Subcategory --}}
+<script>
+    $(document).ready(function() {
+        var $categorySelect = $('#category_id');
+        var $subcategorySelect = $('#subcategory_id');
+
+        function subcategories(categoryId) {
+            $.ajax({
+                type: "post",
+                url: '{{ route('product.getSubcategories') }}',
+                data: {
+                    category_id: categoryId,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    $subcategorySelect.empty();
+                    $.each(data, function(id, subcategory) {
+                        $subcategorySelect.append(new Option(subcategory, id));
+                    });
+                },
+                error: function() {
+                    alert('Error fetching subcategories.');
+                }
+            });
+        }
+
+        var initialCategoryId = $categorySelect.val();
+        if (initialCategoryId) {
+            subcategories(initialCategoryId);
+        }
+
+        // Handle category change event
+        $categorySelect.on('change', function() {
+            var categoryId = $(this).val();
+            if (categoryId) {
+                subcategories(categoryId);
+            } else {
+                $subcategorySelect.empty();
+            }
+        });
+    });
+</script>
 @endpush

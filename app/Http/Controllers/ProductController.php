@@ -33,10 +33,6 @@ class ProductController extends Controller
     {
         $product = Product::with('category', 'subCategory', 'brand')
             ->find($product->id);
-
-        // echo "<pre>";
-        // print_r($product->toArray());
-        // die;
         return view('admin.product.view')->with(compact('product'));
     }
 
@@ -45,9 +41,9 @@ class ProductController extends Controller
      */
     public function create(Request $request)
     {
-        $categories = Category::where('status', 'active')->get();
-        $subcategories = SubCategory::where('status', 'active')->get();
-        $brands = Brand::where('status', 'active')->get();
+        $categories = Category::where('status', 'active')->pluck('category', 'id')->toArray();
+        $subcategories = SubCategory::where('status', 'active')->pluck('sub_category','id')->toArray();
+        $brands = Brand::where('status', 'active')->pluck('brand','id')->toArray();
         return view('admin.product.add')->with(compact('categories', 'subcategories', 'brands'));
     }
 
@@ -97,7 +93,7 @@ class ProductController extends Controller
                 'category_id' => $request->category_id,
                 'subcategory_id' => $request->subcategory_id,
                 'brand_id' => $request->brand_id,
-                'product_name' => $request->product_name,
+                'product_name' => ucfirst($request->product_name),
                 'slug' => Str::slug($request->product_name),
                 'sku' => $request->sku,
                 'price' => $request->price,
@@ -120,9 +116,9 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $categories = Category::where('status', 'active')->get();
-        $subcategories = SubCategory::where('status', 'active')->get();
-        $brands = Brand::where('status', 'active')->get();
+        $categories = Category::where('status', 'active')->pluck('category', 'id')->toArray();
+        $subcategories = SubCategory::where('status', 'active')->pluck('sub_category','id')->toArray();
+        $brands = Brand::where('status', 'active')->pluck('brand','id')->toArray();
         return view('admin.product.edit')->with(compact('product', 'categories', 'subcategories', 'brands'));
     }
 
@@ -147,65 +143,52 @@ class ProductController extends Controller
             'image.*' => ['image|mimes:jpeg,png,jpg,gif|max:2048'],
         ];
 
-        // $validator = Validator::make($request->all(), $rules);
-        // if ($validator->fails()) {
-        //     $errors = $validator->errors()->all();
-        //     dd($errors);
-        //     return redirect()->back()
-        //         ->withErrors($validator)
-        //         ->withInput();
-        // }
-
         DB::beginTransaction();
         try {
 
-            $product = Product::find($request->id);
-
-            if($reqImg = $request->file('image')){
+            $product = Product::find($product->id);
+            if ($reqImg = $request->file('image')) {
                 $destination = "/product_images/";
                 $oldImages = json_decode($product->image);
 
-                foreach($reqImg as $img){
+                foreach ($reqImg as $img) {
 
                     $rand = Str::random(5);
-                    $imgName = $rand.'-'.time().'-'. $img->getClientOriginalName();
-                    $img->move(public_path().$destination,$imgName);
-                    $imageData[]= '/product_images/'.$imgName;
+                    $imgName = $rand . '-' . time() . '-' . $img->getClientOriginalName();
+                    $img->move(public_path() . $destination, $imgName);
+                    $imageData[] = '/product_images/' . $imgName;
                 }
-                $allimgs = array_merge($oldImages,$imageData);
+                $allimgs = array_merge($oldImages, $imageData);
                 // $product->image = json_encode($allimgs);
                 $product->update([
                     'category_id' => $request->category_id,
                     'subcategory_id' => $request->subcategory_id,
                     'brand_id' => $request->brand_id,
-                    'product_name' => $request->product_name,
+                    'product_name' => ucfirst($request->product_name),
                     'slug' => $request->slug,
                     'sku' => $request->sku,
                     'price' => $request->price,
                     'quantity' => $request->quantity,
                     'short_description' => $request->short_description,
                     'description' => $request->description,
-                    'status' => $request->product_status,
+                    'status' => $request->status,
                     'image' => json_encode($allimgs),
                 ]);
-
-            }else{
+            } else {
                 $product->update([
                     'category_id' => $request->category_id,
                     'subcategory_id' => $request->subcategory_id,
                     'brand_id' => $request->brand_id,
-                    'product_name' => $request->product_name,
+                    'product_name' => ucfirst($request->product_name),
                     'slug' => $request->slug,
                     'sku' => $request->sku,
                     'price' => $request->price,
                     'quantity' => $request->quantity,
                     'short_description' => $request->short_description,
                     'description' => $request->description,
-                    'status' => $request->product_status,
+                    'status' => $request->status,
                 ]);
-
             }
-
         } catch (Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('status', $e->getMessage());
@@ -218,31 +201,64 @@ class ProductController extends Controller
      * Update  time delete images
      */
 
-    public function updateTimeDeleteImg(Request $request)
+    // public function updateTimeDeleteImg(Request $request,Product $product)
+    // {
+    //     $deleteIMG = Product::find($request->id);
+    //     if ($reqImg = $request->imagename) {
+    //         // $destination = "/Images/";
+    //         $oldImages = json_decode($deleteIMG->image, true);
+    //         // Delete Image on folder
+    //         if (!empty($oldImages)) {
+    //             foreach ($oldImages as $oldImage) {
+    //                 if (file_exists(public_path($oldImage))) {
+    //                     unlink(public_path($oldImage));
+    //                 }
+    //             }
+    //         }
+    //         // Delete Image on folder End
+
+    //         if (($key = array_search($reqImg, $oldImages)) !== false) {
+    //             unset($oldImages[$key]);
+    //         }
+    //         $newArr = array_values($oldImages);
+    //         $deleteIMG->image = json_encode($newArr);
+    //         $deleteIMG->update();
+    //         return response()->json(["msg" => 'success']);
+    //     }
+    // }
+
+
+    public function updateTimeDeleteImg(Request $request, Product $product)
     {
         $deleteIMG = Product::find($request->id);
         if ($reqImg = $request->imagename) {
-            // $destination = "/Images/";
             $oldImages = json_decode($deleteIMG->image, true);
+
             // Delete Image on folder
             if (!empty($oldImages)) {
-                foreach ($oldImages as $oldImage) {
-                    if (file_exists(public_path($oldImage))) {
-                        unlink(public_path($oldImage));
+                $deleted = false;
+                foreach ($oldImages as $key => $oldImage) {
+                    if ($oldImage === $reqImg) {
+                        // Delete the selected image from the storage folder
+                        if (file_exists(public_path($oldImage))) {
+                            unlink(public_path($oldImage));
+                        }
+                        // Remove the image from the array
+                        unset($oldImages[$key]);
+                        $deleted = true;
                     }
                 }
-            }
-            // Delete Image on folder End
 
-            if (($key = array_search($reqImg, $oldImages)) !== false) {
-                unset($oldImages[$key]);
+                if ($deleted) {
+                    $newArr = array_values($oldImages);
+                    $deleteIMG->image = json_encode($newArr);
+                    $deleteIMG->update();
+                    return response()->json(["msg" => 'success']);
+                }
             }
-            $newArr = array_values($oldImages);
-            $deleteIMG->image = json_encode($newArr);
-            $deleteIMG->update();
-            return response()->json(["msg" => 'success']);
         }
     }
+
 
     /**
      * Show the form for View the specified resource.

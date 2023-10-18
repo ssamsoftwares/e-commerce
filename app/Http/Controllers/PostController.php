@@ -15,12 +15,12 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
- 
+
      public function index()
      {  $posts = Post::paginate(10);
         return view('admin.post.all')->with(compact('posts'));
      }
-     
+
     /**
      * Show the form for creating a new resource.
      */
@@ -49,7 +49,7 @@ class PostController extends Controller
             }
 
             $post = Post::create([
-                'title' => $request->title,
+                'title' => ucfirst($request->title),
                 'slug' => Str::slug($request->title),
                 'description' => $request->description,
                 'image' =>  $request->image?'post_images/' . $imageName:Null,
@@ -107,7 +107,7 @@ class PostController extends Controller
 
                         // Update the new post.
                         $post->update([
-                            'title' => $request->title,
+                            'title' => ucfirst($request->title),
                             'slug' => Str::slug($request->slug),
                             'image' => 'post_images/' . $imageName,
                             'description' => $request->description,
@@ -116,7 +116,7 @@ class PostController extends Controller
                     } else {
                         // If no new image is uploaded.
                         $post->update([
-                            'title' => $request->title,
+                            'title' => ucfirst($request->title),
                             'slug' => Str::slug($request->slug),
                             'description' => $request->description,
                             'status' => $request->status,

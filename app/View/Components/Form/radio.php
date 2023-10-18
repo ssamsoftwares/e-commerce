@@ -6,14 +6,19 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class SelectOption extends Component
+class radio extends Component
 {
     /**
      * Create a new component instance.
      */
-    public function __construct()
+        public $label, $name, $id, $value;
+
+    public function __construct($label,$name,$value,$id=null)
     {
-        //
+        $this->label = $label;
+        $this->name = $name;
+        $this->id = $id;
+        $this->value = $value;
     }
 
     /**
@@ -21,6 +26,6 @@ class SelectOption extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.form.select-option');
+        return view('components.form.radio');
     }
 }

@@ -18,10 +18,10 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="float-right">
+                {{-- <div class="float-right">
                     <x-search.table-search action="{{ route('products') }}" method="get" name="search"
                         value="{{ isset($_REQUEST['search']) ? $_REQUEST['search'] : '' }}" btnClass="search_btn" />
-                </div>
+                </div> --}}
                 <div class="card-body">
                     <a href="javascript:void(0)" class="btn btn-danger m-2 deleteAll" id="deleteAll">Delete All</a>
                     <a href="javascript:void(0)" class="btn btn-primary m-2" id="selectAll">All Select </a>

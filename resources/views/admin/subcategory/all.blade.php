@@ -17,10 +17,10 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="float-right">
+                {{-- <div class="float-right">
                     <x-search.table-search action="{{ route('subCategory') }}" method="get" name="search"
                         value="{{ isset($_REQUEST['search']) ? $_REQUEST['search'] : '' }}" btnClass="search_btn"/>
-                </div>
+                </div> --}}
                 <div class="card-body">
                     <table id="datatable" class="table table-striped table-bordered dt-responsive nowrap"
                         style="border-collapse: collapse; border-spacing: 0; width: 100%;">
@@ -42,10 +42,10 @@
                                 </td>
                                 <td>{{$subCat->slug}}</td>
                                 <td>{{ $subCat->category->category }}</td>
-                               
+
                                 <td>
                                     @if ($subCat->status == 'active')
-                                    <span class="badge badge-info text-info">Active</span>  
+                                    <span class="badge badge-info text-info">Active</span>
                                     @else
                                     <span class="badge badge-dark text-dark">Inactive</span>
                                     @endif

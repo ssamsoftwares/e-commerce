@@ -30,49 +30,53 @@ class PageController extends Controller
         return view('admin.pages.add');
     }
 
-      /**
+    /**
      *  View the form for creating a new resource.
      */
 
-     public function show(Page $page){
+    public function show(Page $page)
+    {
         return view('admin.pages.view')->with(compact('page'));
-     }
+    }
 
 
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(Request $request)
     {
         $request->validate([
-            'title' => ['required', 'string', 'max:255','unique:'.Page::class],
-            // 'slug' =>  ['string', 'slug', 'max:255', 'unique:'.Page::class],
-            'body' => ['required', 'string',],
+            'title' => ['required', 'string', 'max:255', 'unique:pages'],
+            'body' => ['required', 'string'],
             'image' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ]);
 
         DB::beginTransaction();
         try {
+            $imagePath = null;
 
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('pages', 'public'); // 'pages' is the directory name
-            } else {
-                $imagePath = null; // No image uploaded, set the path to null
+                $reqImg = $request->image;
+                $filename = $request->image->getClientOriginalName();
+                $request->image->move(public_path('pages'), $filename);
+                $imagePath = 'pages/' . $filename;
             }
 
             $page = Page::create([
-                'title' => $request->title,
+                'title' => ucfirst($request->title),
                 'slug' => Str::slug($request->title),
                 'body' => $request->body,
-                'image' => $request->$imagePath,
+                'image' => $imagePath,
             ]);
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('status', $e->getMessage());
         }
         DB::commit();
-        return redirect()->back()->with('status', 'Pages Created Successfully!');
+        return redirect()->back()->with('status', 'Page Created Successfully!');
     }
+
 
 
     /**
@@ -92,17 +96,24 @@ class PageController extends Controller
             'title' => 'required|string|max:255',
             'slug' => ['required', 'string', 'max:255', Rule::unique('pages')->ignore($page->id),],
             'body' => ['required', 'string',],
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         DB::beginTransaction();
         try {
 
+            if ($request->hasFile('image')) {
+                $imageName = time() . rand(0000, 9999) . '.' . $request->image->extension();
+                $request->image->move(public_path('pages'), $imageName);
+                }
+
+
             $page->update([
-                'title' => $request->title,
+                'title' => ucfirst($request->title),
                 'slug' => Str::slug($request->slug),
                 'body' => $request->body,
-                'status' => $request->input('status', false) ? 'active' : 'inactive',
+                'status' => $request->status,
+                'image' =>  $request->image?'pages/' . $imageName:Null,
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -129,7 +140,4 @@ class PageController extends Controller
         DB::commit();
         return redirect()->back()->with('status', 'Page deleted successfully!');
     }
-
-
-  
 }

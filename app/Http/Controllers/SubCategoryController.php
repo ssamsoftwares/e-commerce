@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 
 class SubCategoryController extends Controller
 {
-    
+
     /**
      * Display a listing of the resource.
      */
@@ -25,28 +25,28 @@ class SubCategoryController extends Controller
     */
     public function create(Request $request)
     {
-        $categories = Category::where('status', 'active')->get();
+        $categories = Category::where('status', 'active')->pluck('category', 'id')->toArray();
         return view('admin.subcategory.add', compact('categories'));
     }
-    
-    
+
+
    /**
     * Store a newly created resource in storage.
     */
 
     public function Store(Request $request){
             $request->validate([
-                'category_id' => 'required', 
+                'category_id' => 'required',
                 'sub_category' => 'required|max:255|unique:sub_categories,sub_category',
             ]);
-     
+
         // dd($request->all());
 
         DB::beginTransaction();
         try{
             SubCategory::create([
-                'category_id' => $request->category_id, 
-                'sub_category' => $request->sub_category,
+                'category_id' => $request->category_id,
+                'sub_category' => ucfirst($request->sub_category),
                 'slug' => $request->sub_category,
             ]);
 
@@ -63,15 +63,15 @@ class SubCategoryController extends Controller
     */
     public function edit(SubCategory $subcategory){
 
-        $categories = Category::where('status', 'active')->get();
+        $categories = Category::where('status', 'active')->pluck('category', 'id')->toArray();
         return view('admin.subcategory.edit')->with(compact('subcategory','categories'));
     }
-    
+
    /**
     * Update the specified resource in storage.
     */
     public function update(Request $request, SubCategory $subcategory ){
-       
+
         $request->validate([
             'sub_category' => ['required', 'max:255', Rule::unique('sub_categories', 'sub_category')->ignore($request->id), ],
              'slug' => ['required', 'max:255', Rule::unique('sub_categories', 'slug')->ignore($request->id)],
@@ -82,10 +82,10 @@ class SubCategoryController extends Controller
 
             // $subcategory = SubCategory::find($request->id);
             $subcategory->update([
-                'sub_category'=>$request->sub_category,
+                'sub_category'=>ucfirst($request->sub_category),
                 'category_id'=>$request->category_id,
                 'slug'=>$request->slug,
-                'status'=>$request->sub_cat_status,
+                'status'=>$request->status,
             ]);
 
         }catch(Exception $e){

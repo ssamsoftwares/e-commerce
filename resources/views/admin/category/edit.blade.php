@@ -17,11 +17,11 @@
         <div class="card">
             <div class="card-body">
 
-                <form method="post" action="{{ route('category.update') }}" enctype="multipart/form-data">
+                <form method="post" action="{{ route('category.update',['category'=>$category->id]) }}" enctype="multipart/form-data">
                     <input type="hidden" name="id" id="" value="{{$category->id}}">
                     @csrf
-                    <h4 class="card-title mb-3">{{__('Category Details')}}</h4>      
-                    
+                    <h4 class="card-title mb-3">{{__('Category Details')}}</h4>
+
                     <div class="row">
                         <div class="col-lg-6">
                            <x-form.input name="category" label="Category" :value="$category->category"/>
@@ -34,12 +34,7 @@
 
                     <div class="row">
                         <div class="col-lg-6">
-                            {{-- <x-form.input name="status" label="Status" type="text"/> --}}
-                            <label for="">Status</label>
-                            <input type="text" name="status" value="{{$category->status}}" class="form-control">
-                            @error('status')
-                                <span class="text-danger">{{$message}}</span>
-                            @enderror
+                            <x-form.radio label="Status" name="status" id="" :value="$category->status" />
                         </div>
 
                         <div class="col-lg-4">
@@ -55,7 +50,7 @@
                     </div>
 
                     <div>
-                        <button class="btn btn-primary" type="submit">{{__('update Category')}}</button>
+                        <button class="btn btn-primary" type="submit">{{__('Update Category')}}</button>
                     </div>
                 </form>
            </div>
